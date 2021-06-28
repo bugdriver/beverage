@@ -15,54 +15,57 @@ const updateRecords = function (newEntry) {
   return JSON.stringify(feededRecords);
 };
 
-const date = new Date();
-const [input,firstOpt, beverage ,secondOpt, qty, thirdOpt, empId,FourthOpt,inputDate] = process.argv.slice(2);
-if (input=="--save")
-{
-    if (
-        Number.isInteger(Number(qty)) &&
-        Number.isInteger(Number(empId)) &&
-        typeof beverage == "string"
-      ) {
-        const newRecord = [
-          { empId: empId, beverage: beverage, qty: qty, date: date },
-        ];
-        writeRecords(updateRecords(newRecord));
-      } else {
-        console.log("Oops! Invalid Input");
-      }     
-}
-else if (input =="--query")
-{
-   
+const saveRecord = function (empId, qty, beverage, date) {
+  if (
+    Number.isInteger(Number(qty)) &&
+    Number.isInteger(Number(empId)) &&
+    typeof beverage == "string"
+  ) {
+    const newRecord = { empId, beverage, qty, date };
+    writeRecords(updateRecords(newRecord));
+    return true;
+  } else {
+    return false;
+  }
+};
+
+const queryRecord = function (option, value) {
   let allRecords = getRecords();
+  if (option == "--beverage") {
+    return allRecords.filter((record) => record.beverage == value);
+  }
+  if (option == "--empId") {
+    return allRecords.filter((record) => record.empId == value);
+  }
+  if (option == "--date") {
+    return allRecords.filter((record) => record.date == value);
+  }
+  if (option == "--qty") {
+    return allRecords.filter((record) => record.qty == value);
+  }
+  return [];
+};
 
-  const checkOptions = function(Option,value)
-  {
-    let list;
-   if (Option  == "--beverage")
-   {
-   allRecords= allRecords.filter(record =>record.beverage == value);
-   }
-   if (Option =="--empId")
-   {
-    allRecords= allRecords.filter(record =>record.empId== value);
-   }
-   if (Option =="--date")
-   {
-    allRecords= allRecords.filter(record =>record.date== value);
-   }
-   if (Option =="--qty")
-   {
-    allRecords= allRecords.filter(record =>record.qty== value);
-   }
-   return allRecords ;
-   };
+const main = function () {
+  const date = new Date();
+  const [
+    input,
+    firstOpt,
+    beverage,
+    secondOpt,
+    qty,
+    thirdOpt,
+    empId,
+    FourthOpt,
+    inputDate,
+  ] = process.argv.slice(2);
 
-   checkOptions(firstOpt,beverage);
-   checkOptions(secondOpt,qty);
-   checkOptions(thirdOpt,empId);
-   checkOptions(FourthOpt,inputDate);
-   console.log(allRecords);
- }
- 
+  if (input == "--save") {
+    const success = saveRecord(empId, qty, beverage, date);
+    console.log(success ? "Record Updated" : "Oops! Invalid Input");
+  } else if (input == "--query") {
+    console.log(queryRecord(firstOpt, beverage));
+  }
+};
+
+main();
